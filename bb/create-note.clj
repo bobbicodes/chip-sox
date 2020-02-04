@@ -28,6 +28,6 @@
   (when-not (some #{(str "note-" pitch "-" wave "-whole.wav")} files)
     (println (str "Generating sample: " pitch "-" wave))
     (doall (for [[val len] (notes (Integer/parseInt tempo))]
-             (create-note wave pitch (subs (str val) 1) (str (float len)))))))
+             (create-note wave pitch (name val) (str (float len)))))))
 
 (System/exit 0)
