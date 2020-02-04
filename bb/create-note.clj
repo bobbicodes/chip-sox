@@ -10,28 +10,24 @@
             (str (midi->freq (Integer/parseInt pitch))) 
             "trim" "0" len))
 
+(defn notes [tempo]
+  {:whole   (/ 240 tempo)
+   :half    (/ 120 tempo)
+   :quarter (/ 60 tempo)
+   :qtrip   (/ 40 tempo)
+   :eighth  (/ 30 tempo)
+   :etrip   (/ 20 tempo)
+   :teenth  (/ 15 tempo)
+   :ttrip   (/ 10 tempo)})
+
 (let [[wave pitch tempo] *command-line-args*
-      whole (/ 240 (Integer/parseInt tempo))
-      half (/ whole 2)
-      quarter (/ half 2)
-      qt (/ 40 (Integer/parseInt tempo))
-      eighth (/ quarter 2)
-      et (/ qt 2)
-      teenth (/ eighth 2)
-      tt (/ et 2)
       files (str/split-lines (:out (shell/sh "ls")))]
   (when (or (empty? wave) (empty? pitch) (empty? tempo))
     (println "Usage: <wave> <pitch> <tempo>")
     (System/exit 1))
   (when-not (some #{(str "note-" pitch "-" wave "-whole.wav")} files)
-    (println (str "Generating sample: "  "note-" pitch "-" wave "-whole.wav"))
-    (create-note wave pitch "whole" (str (float whole)))
-    (create-note wave pitch "half" (str (float half)))
-    (create-note wave pitch "quarter" (str (float quarter)))
-    (create-note wave pitch "qt" (str (float qt)))
-    (create-note wave pitch "eighth" (str (float eighth)))
-    (create-note wave pitch "et" (str (float et)))
-    (create-note wave pitch "teenth" (str (float teenth)))
-    (create-note wave pitch "tt" (str (float tt)))))
+    (println (str "Generating sample: " pitch "-" wave))
+    (doall (for [[val len] (notes (Integer/parseInt tempo))]
+             (create-note wave pitch (subs (str val) 1) (str (float len)))))))
 
 (System/exit 0)
