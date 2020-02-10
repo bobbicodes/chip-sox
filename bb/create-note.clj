@@ -23,6 +23,7 @@
 ; Example usage:
 ; $ ./create-note.clj triangle 43 240
 ; Generating sample: 43-triangle
+; <wave> is one of sine, square, triangle, sawtooth, trapezium, exp, [white] noise, tpdfnoise, pinknoise, brownnoise, pluck
 
 (let [[wave pitch tempo] *command-line-args*
       files (str/split-lines (:out (shell/sh "ls")))]
@@ -31,7 +32,7 @@
     (System/exit 1))
   (when-not (some #{(str "note-" pitch "-" wave "-whole.wav")} files)
     (println (str "Generating sample: " pitch "-" wave))
-    (doall (for [[val len] (notes (Integer/parseInt tempo))]
-             (create-note wave pitch (name val) (str (float len)))))))
+    (doseq [[val len] (notes (Integer/parseInt tempo))]
+             (create-note wave pitch (name val) (str (float len))))))
 
 (System/exit 0)
