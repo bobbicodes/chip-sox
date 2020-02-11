@@ -23,4 +23,5 @@
   (init-wav)
   (doseq [[pitch val] (map #(str/split (str %) #" ") (read-file file))]
     (shell/sh "./create-note.clj" wave pitch tempo)
-    (append-note wave pitch val)))
+    (append-note wave pitch val))
+  (shell/sh "mv" "temp0.wav" (str file ".wav")))
