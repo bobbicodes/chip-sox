@@ -14,10 +14,10 @@
   (* 440 (Math/pow 2 (/ (- n 69) 12))))
 
 (defn create-note [wave pitch val len]
-  (shell/sh "sox" "-n" 
-            (str "samples/note-" pitch "-" wave "-" val ".wav") 
+  (shell/sh "sox" "-n"
+            (str "samples/note-" pitch "-" wave "-" val ".wav")
             "synth" len wave
-            (str (midi->freq (Integer/parseInt pitch))) 
+            (str (midi->freq (Integer/parseInt pitch)))
             "trim" "0" len))
 
 ; Example usage:
