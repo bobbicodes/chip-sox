@@ -5,13 +5,13 @@
     (doall (line-seq rdr))))
 
 (defn init-wav []
-  (shell/sh "sox" "-n" "-c" "1" "temp0.wav" "trim" "0.0" "0.0"))
+  (shell/sh "sox" "-n" "-c" "1" "samples/temp0.wav" "trim" "0.0" "0.0"))
 
 (defn append-note [wave pitch val]
-  (shell/sh "sox" "temp0.wav" 
-            (str "note-" pitch "-" wave "-" val ".wav")
-            "temp1.wav")
-  (shell/sh "mv" "temp1.wav" "temp0.wav"))
+  (shell/sh "sox" "samples/temp0.wav" 
+            (str "samples/note-" pitch "-" wave "-" val ".wav")
+            "samples/temp1.wav")
+  (shell/sh "mv" "samples/temp1.wav" "samples/temp0.wav"))
 
 ; <wave> is one of sine, square, triangle, sawtooth, trapezium, exp, [white] noise, tpdfnoise, pinknoise, brownnoise, pluck
 
@@ -19,9 +19,9 @@
   (when (or (empty? file) (empty? wave) (empty? tempo))
     (println "Usage: <file> <wave> <tempo>")
     (System/exit 1))
-  (shell/sh "rm" "*.wav")
   (init-wav)
+  (println (str "Building track - " file))
   (doseq [[pitch val] (map #(str/split (str %) #" ") (read-file file))]
     (shell/sh "./create-note.clj" wave pitch tempo)
     (append-note wave pitch val))
-  (shell/sh "mv" "temp0.wav" (str file ".wav")))
+  (shell/sh "mv" "samples/temp0.wav" (str file ".wav")))

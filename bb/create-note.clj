@@ -15,7 +15,7 @@
 
 (defn create-note [wave pitch val len]
   (shell/sh "sox" "-n" 
-            (str "note-" pitch "-" wave "-" val ".wav") 
+            (str "samples/note-" pitch "-" wave "-" val ".wav") 
             "synth" len wave
             (str (midi->freq (Integer/parseInt pitch))) 
             "trim" "0" len))
@@ -30,7 +30,7 @@
   (when (or (empty? wave) (empty? pitch) (empty? tempo))
     (println "Usage: <wave> <pitch> <tempo>")
     (System/exit 1))
-  (when-not (some #{(str "note-" pitch "-" wave "-whole.wav")} files)
+  (when-not (some #{(str "samples/note-" pitch "-" wave "-whole.wav")} files)
     (println (str "Generating sample: " pitch "-" wave))
     (doseq [[val len] (notes (Integer/parseInt tempo))]
              (create-note wave pitch (name val) (str (float len))))))
