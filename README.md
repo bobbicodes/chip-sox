@@ -24,4 +24,4 @@ $ bb --socket-repl 1666
 Babashka socket REPL started at localhost:1666
 ```
 
-2. Open up `bb-sox.clj` in your Clojure editor and connect to the running socket REPL.
+2. Open up `chip-sox.clj` in your Clojure editor and connect to the running socket REPL.
