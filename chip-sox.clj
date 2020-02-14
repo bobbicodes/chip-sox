@@ -53,14 +53,32 @@
     (append-note! wave pitch val tempo))
   (shell/sh "mv" "samples/temp0.wav" (str file ".wav")))
 
+;;;;;;;;;; Triangle bass/drums
+
+(def tri-1
+  {:deg-1 [[50 64] [46 64] [42 64] [40 64] [36 8] [0 32]]
+   :deg-5 [[58 64] [55 64] [52 64] [42 64] [43 8] [0 32]]
+   :deg-8 [[60 64] [48 8] [0 32]]})
+
+(def tri-2
+  {:deg-8 [[60 64] [48 24] [58 64] [55 64] [52 64] [42 64] [48 64] [0 32]]})
+
+(def intro
+  (concat (:deg-1 tri-1) (:deg-8 tri-1) (:deg-5 tri-1) (:deg-8 tri-1)
+          (:deg-1 tri-1) (:deg-8 tri-1) (:deg-5 tri-1) (:deg-8 tri-2)
+          (:deg-1 tri-1) (:deg-8 tri-1) (:deg-5 tri-1) (:deg-8 tri-2)
+          (:deg-1 tri-1) (:deg-8 tri-1) (:deg-5 tri-1) (:deg-8 tri-2)))
+
+(def verse-1
+  (apply concat (repeat 4 (concat (:deg-1 tri-1) (:deg-8 tri-1) (:deg-5 tri-1) (:deg-8 tri-1)))))
+
 (comment
   (str (duration 16 175))
-  (create-note! "triangle" 50 16 175)
+  (create-note! "triangle" 50 16 150)
 
-  (build-track! "bass-1" "triangle" 175
-                [[50 32] [46 32] [42 32] [40 32]
-                 [36 4]])
+  (build-track! "intro" "triangle" 170
+                (concat intro verse-1))
 
-  (play! "bass-1")
+  (play! "intro")
 
   )
