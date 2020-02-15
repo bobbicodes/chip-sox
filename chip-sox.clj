@@ -27,6 +27,7 @@
             (str "samples/" wave "-" pitch "-" val "-" tempo ".wav")
             "synth" (str (duration val tempo)) wave
             (str (midi->freq pitch))
+            "fade" "t" "0.0015" (str (- (duration val tempo) 0.0015))
             "trim" "0.0" (str (duration val tempo))))
 
 (defn append-note!
@@ -37,6 +38,15 @@
             "samples/temp1.wav")
   (shell/sh "mv" "samples/temp1.wav" "samples/temp0.wav"))
 
+(defn high-pass [in out level]
+  (shell/sh "sox" (str in ".wav") (str out ".wav") "flanger"
+            "gain" "-20" "bass" "-30" "5k" "treble" "20" "12k"))
+
+(defn mix [t1 t2 out]
+  (shell/sh "sox" "-m"
+            (str t1 ".wav") (str t2 ".wav")
+            (str out ".wav")))
+
 (defn play! [file]
   (shell/sh "play" (str file ".wav")))
 
@@ -46,7 +56,7 @@
 
 (defn build-track! [file wave tempo notes]
   (init-wav!)
-  (println (str "Building track - " file))
+  (println (str "Building track - \"" file "\" - Please wait..."))
   (doseq [[pitch val] notes]
     (when-not (sample-exists? wave pitch val tempo)
       (create-note! wave pitch val tempo))
@@ -76,9 +86,8 @@
   (str (duration 16 175))
   (create-note! "triangle" 50 16 150)
 
-  (build-track! "intro" "triangle" 170
+  (build-track! "intro" "triangle" 160
                 (concat intro verse-1))
 
   (play! "intro")
-
   )
