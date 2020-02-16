@@ -21,73 +21,114 @@
   "Generates one of the following waveforms:
   sine, square, triangle, sawtooth, trapezium, exp,
   [white] noise, tpdfnoise, pinknoise, brownnoise, pluck."
-  [wave pitch val tempo]
-  (shell/sh "mkdir" "-p" "samples")
-  (shell/sh "sox" "-n"
-            (str "samples/" wave "-" pitch "-" val "-" tempo ".wav")
-            "synth" (str (duration val tempo)) wave
-            (str (midi->freq pitch))
-            "fade" "t" "0.0015" (str (- (duration val tempo) 0.0015))
-            "trim" "0.0" (str (duration val tempo))))
+  ([wave pitch val tempo]
+   (shell/sh "mkdir" "-p" "samples")
+   (shell/sh "sox" "-n"
+             (str "samples/" wave "-" pitch "-" val "-" tempo ".wav")
+             "synth" (str (duration val tempo)) wave
+             (str (midi->freq pitch))
+             "fade" "t" "0.0015" (str (- (duration val tempo) 0.0015))
+             "trim" "0.0" (str (duration val tempo))))
+  ([wave pitch val tempo decay]
+   (shell/sh "mkdir" "-p" "samples")
+   (shell/sh "sox" "-n"
+             (str "samples/" wave "-" pitch "-" val "-" tempo ".wav")
+             "synth" (str (duration val tempo)) wave
+             (str (midi->freq pitch))
+             "fade" "t" "0.0015" (str decay) (str (- (duration val tempo) 0.0015))
+             "trim" "0.0" (str (duration val tempo)))))
 
-(defn append-note!
-  "Extends current track by concatenating a note to the end."
-  [wave pitch val tempo]
-  (shell/sh "sox" "samples/temp0.wav" 
-            (str "samples/" wave "-" pitch "-" val "-" tempo ".wav")
-            "samples/temp1.wav")
-  (shell/sh "mv" "samples/temp1.wav" "samples/temp0.wav"))
+  (defn append-note!
+    "Extends current track by concatenating a note to the end."
+    [wave pitch val tempo]
+    (shell/sh "sox" "samples/temp0.wav" 
+              (str "samples/" wave "-" pitch "-" val "-" tempo ".wav")
+              "samples/temp1.wav")
+    (shell/sh "mv" "samples/temp1.wav" "samples/temp0.wav"))
 
-(defn high-pass [in out level]
-  (shell/sh "sox" (str in ".wav") (str out ".wav") "flanger"
-            "gain" "-20" "bass" "-30" "5k" "treble" "20" "12k"))
+  (defn concat-wav! [f1 f2 out]
+    (shell/sh "sox" (str f1 ".wav") (str f2 ".wav") (str out ".wav"))) 
 
-(defn mix [t1 t2 out]
-  (shell/sh "sox" "-m"
-            (str t1 ".wav") (str t2 ".wav")
-            (str out ".wav")))
+  (defn high-pass! [in out level]
+    (shell/sh "sox" (str in ".wav") (str out ".wav") "flanger"
+              "gain" "-20" "bass" "-30" "5k" "treble" "20" "12k"))
 
-(defn play! [file]
-  (shell/sh "play" (str file ".wav")))
+  (defn mix! [t1 t2 out]
+    (shell/sh "sox" "-m"
+              (str t1 ".wav") (str t2 ".wav")
+              (str out ".wav")))
 
-(defn sample-exists? [wave pitch val tempo]
-  (some #{(str  "samples/" wave "-" pitch "-" val "-" tempo ".wav")}
-        (str/split-lines (:out (shell/sh "ls")))))
+  (defn play! [file]
+    (shell/sh "play" (str file ".wav")))
 
-(defn build-track! [file wave tempo notes]
-  (init-wav!)
-  (println (str "Building track - \"" file "\" - Please wait..."))
-  (doseq [[pitch val] notes]
-    (when-not (sample-exists? wave pitch val tempo)
-      (create-note! wave pitch val tempo))
-    (append-note! wave pitch val tempo))
-  (shell/sh "mv" "samples/temp0.wav" (str file ".wav")))
+  (defn sample-exists? [wave pitch val tempo]
+    (some #{(str  "samples/" wave "-" pitch "-" val "-" tempo ".wav")}
+          (str/split-lines (:out (shell/sh "ls")))))
+
+  (defn build-track!
+    ([file wave tempo notes]
+     (init-wav!)
+     (println (str "Building track - \"" file "\" - Please wait..."))
+     (doseq [[pitch val] notes]
+       (when-not (sample-exists? wave pitch val tempo)
+         (create-note! wave pitch val tempo)
+       (append-note! wave pitch val tempo)))
+    (shell/sh "mv" "samples/temp0.wav" (str file ".wav")))
+  ([file wave tempo decay notes]
+   (init-wav!)
+   (println (str "Building track - \"" file "\" - Please wait..."))
+   (doseq [[pitch val] notes]
+     (when-not (sample-exists? wave pitch val tempo)
+       (create-note! wave pitch val tempo decay))
+     (append-note! wave pitch val tempo))
+   (shell/sh "mv" "samples/temp0.wav" (str file ".wav"))))
 
 ;;;;;;;;;; Triangle bass/drums
 
 (def tri-1
   {:deg-1 [[50 64] [46 64] [42 64] [40 64] [36 8] [0 32]]
+   :deg-4 [[50 64] [46 64] [42 64] [40 64] [41 8] [0 32]]
    :deg-5 [[58 64] [55 64] [52 64] [42 64] [43 8] [0 32]]
-   :deg-8 [[60 64] [48 8] [0 32]]})
+   :deg-8 [[60 64] [48 8] [0 32]]
+   :deg-11 [[65 64] [53 8] [0 32]]})
 
 (def tri-2
   {:deg-8 [[60 64] [48 24] [58 64] [55 64] [52 64] [42 64] [48 64] [0 32]]})
 
-(def intro
-  (concat (:deg-1 tri-1) (:deg-8 tri-1) (:deg-5 tri-1) (:deg-8 tri-1)
-          (:deg-1 tri-1) (:deg-8 tri-1) (:deg-5 tri-1) (:deg-8 tri-2)
-          (:deg-1 tri-1) (:deg-8 tri-1) (:deg-5 tri-1) (:deg-8 tri-2)
-          (:deg-1 tri-1) (:deg-8 tri-1) (:deg-5 tri-1) (:deg-8 tri-2)))
+(def intro-1
+  (concat (:deg-1 tri-1) (:deg-8 tri-1) (:deg-5 tri-1) (:deg-8 tri-1)))
 
-(def verse-1
-  (apply concat (repeat 4 (concat (:deg-1 tri-1) (:deg-8 tri-1) (:deg-5 tri-1) (:deg-8 tri-1)))))
+(def intro-2
+  (concat (:deg-1 tri-1) (:deg-8 tri-1) (:deg-5 tri-1) (:deg-8 tri-2)))
 
-(comment
-  (str (duration 16 175))
-  (create-note! "triangle" 50 16 150)
+(def verse-2
+  (concat (:deg-4 tri-1) (:deg-11 tri-1) (:deg-8 tri-1) (:deg-11 tri-1)))
 
-  (build-track! "intro" "triangle" 160
-                (concat intro verse-1))
+(build-track! "intro-1" "triangle" 160 intro-1)
+(build-track! "intro-2" "triangle" 160 intro-2)
+(build-track! "verse-2" "triangle" 160 verse-2)
+(concat-wav! "intro-1" "intro-2" "intro-A")
+(concat-wav! "intro-A" "intro-A" "intro")
+(concat-wav! "intro-1" "intro-1" "verse-1")
+(concat-wav! "verse-1" "verse-1" "verse-2")
+(concat-wav! "verse-2" "verse-2" "verse-3")
+(concat-wav! "intro-A" "intro-B" "intro-D")
+(concat-wav! "intro-D" "intro-4" "intro-F")
+(concat-wav! "intro-F" "verse-2" "intro")
+(play! "intro-1")
+(play! "verse-3")
+(play! "verse-2")
 
-  (play! "intro")
-  )
+;;;;;;;;;;;;Sawtooth bass
+
+(def saw-1
+  {:deg-1  [[31 16] [31 16] [43 16] [43 16]]
+   :deg-4 [[50 64] [46 64] [42 64] [40 64] [41 8] [0 32]]
+   :deg-5 [[58 64] [55 64] [52 64] [42 64] [43 8] [0 32]]
+   :deg-8 [[60 64] [48 8] [0 32]]
+   :deg-11 [[65 64] [53 8] [0 32]]})
+
+(build-track! "saw-1" "sawtooth" 90 0.2 (:deg-1 saw-1))
+(concat-wav! "saw-1" "saw-1" "saw-A")
+(concat-wav! "saw-A" "saw-A" "saw-B")
+(play! "saw-B")
