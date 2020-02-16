@@ -122,13 +122,17 @@
 ;;;;;;;;;;;;Sawtooth bass
 
 (def saw-1
-  {:deg-1  [[31 16] [31 16] [43 16] [43 16]]
-   :deg-4 [[50 64] [46 64] [42 64] [40 64] [41 8] [0 32]]
-   :deg-5 [[58 64] [55 64] [52 64] [42 64] [43 8] [0 32]]
-   :deg-8 [[60 64] [48 8] [0 32]]
-   :deg-11 [[65 64] [53 8] [0 32]]})
+  {:deg-1 [[31 16] [31 16] [43 16] [43 16]]
+   :deg-2 [[33 16] [33 16] [45 16] [45 16]]
+   :deg-5 [[38 16] [38 16] [40 16] [40 16] [41 16] [41 16] [42 16] [42 16]]})
 
 (build-track! "saw-1" "sawtooth" 90 0.2 (:deg-1 saw-1))
+(build-track! "saw-2" "sawtooth" 90 0.2 (:deg-2 saw-1))
+(build-track! "saw-5" "sawtooth" 90 0.2 (:deg-5 saw-1))
 (concat-wav! "saw-1" "saw-1" "saw-A")
 (concat-wav! "saw-A" "saw-A" "saw-B")
-(play! "saw-B")
+(concat-wav! "saw-2" "saw-2" "saw-3")
+(concat-wav! "saw-B" "saw-3" "saw-C")
+(concat-wav! "saw-C" "saw-5" "saw-D")
+(concat-wav! "saw-D" "saw-D" "saw-E")
+(play! "saw-E")
