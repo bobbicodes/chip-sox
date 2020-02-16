@@ -111,13 +111,8 @@
 (concat-wav! "intro-A" "intro-A" "intro")
 (concat-wav! "intro-1" "intro-1" "verse-1")
 (concat-wav! "verse-1" "verse-1" "verse-2")
-(concat-wav! "verse-2" "verse-2" "verse-3")
-(concat-wav! "intro-A" "intro-B" "intro-D")
-(concat-wav! "intro-D" "intro-4" "intro-F")
-(concat-wav! "intro-F" "verse-2" "intro")
-(play! "intro-1")
-(play! "verse-3")
-(play! "verse-2")
+(concat-wav! "intro" "verse-2" "intro-verse-1")
+(play! "intro-verse-1")
 
 ;;;;;;;;;;;;Sawtooth bass
 
@@ -133,7 +128,7 @@
 (build-track! "saw-2" "sawtooth" 95 0.25 (:deg-2 saw-1))
 (build-track! "saw-5" "sawtooth" 95 0.25 (:deg-5 saw-1))
 (build-track! "saw-5b" "sawtooth" 95 0.25 (:deg-5 saw-2))
- (concat-wav! "saw-1" "saw-1" "saw-A")
+(concat-wav! "saw-1" "saw-1" "saw-A")
 (concat-wav! "saw-A" "saw-A" "saw-B")
 (concat-wav! "saw-2" "saw-2" "saw-3")
 (concat-wav! "saw-B" "saw-3" "saw-C")
