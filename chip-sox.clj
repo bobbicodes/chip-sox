@@ -123,16 +123,21 @@
 
 (def saw-1
   {:deg-1 [[31 16] [31 16] [43 16] [43 16]]
-   :deg-2 [[33 16] [33 16] [45 16] [45 16]]
+   :deg-2 [[33 16] [33 16] [43 16] [45 16]]
    :deg-5 [[38 16] [38 16] [40 16] [40 16] [41 16] [41 16] [42 16] [42 16]]})
 
-(build-track! "saw-1" "sawtooth" 90 0.2 (:deg-1 saw-1))
-(build-track! "saw-2" "sawtooth" 90 0.2 (:deg-2 saw-1))
-(build-track! "saw-5" "sawtooth" 90 0.2 (:deg-5 saw-1))
-(concat-wav! "saw-1" "saw-1" "saw-A")
+(def saw-2
+  {:deg-5 [[38 16] [38 16] [48 16] [50 16] [31 16] [31 16] [43 8]]})
+
+(build-track! "saw-1" "sawtooth" 95 0.25 (:deg-1 saw-1))
+(build-track! "saw-2" "sawtooth" 95 0.25 (:deg-2 saw-1))
+(build-track! "saw-5" "sawtooth" 95 0.25 (:deg-5 saw-1))
+(build-track! "saw-5b" "sawtooth" 95 0.25 (:deg-5 saw-2))
+ (concat-wav! "saw-1" "saw-1" "saw-A")
 (concat-wav! "saw-A" "saw-A" "saw-B")
 (concat-wav! "saw-2" "saw-2" "saw-3")
 (concat-wav! "saw-B" "saw-3" "saw-C")
 (concat-wav! "saw-C" "saw-5" "saw-D")
-(concat-wav! "saw-D" "saw-D" "saw-E")
-(play! "saw-E")
+(concat-wav! "saw-C" "saw-5b" "saw-E")
+(concat-wav! "saw-D" "saw-E" "saw-F")
+(play! "saw-F")
