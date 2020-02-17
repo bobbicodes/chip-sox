@@ -38,6 +38,11 @@
              "fade" "t" "0.0015" (str decay) (str (- (duration val tempo) 0.0015))
              "trim" "0.0" (str (duration val tempo)))))
 
+(defn create-rest! [val tempo]
+  (shell/sh "sox" "-n" "-c" "1"
+            (str "samples/rest-" val "-" tempo ".wav")
+            "trim" "0" (str (duration val tempo))))
+
 (defn append-note!
   "Extends current track by concatenating a note to the end."
   [wave pitch val tempo]
@@ -91,8 +96,20 @@
 
 ;; closed hi-hat
 (create-note! "noise" 60 32 95 0.1)
+(create-rest! 32 95)
+(create-rest! 16 95)
 (high-pass! "samples/noise-60-32-95" "closed-hat")
-(play! "closed-hat")
+
+(concat-wav! "closed-hat" "samples/rest-32-95" "hats-1")
+(concat-wav! "closed-hat" "closed-hat" "hats-2")  
+(concat-wav! "hats-1" "hats-2" "hats") 
+(concat-wav! "hats" "samples/noise-60-16-95" "drums")
+(concat-wav! "drums"  "samples/rest-16-95" "drums-1")
+(concat-wav! "drums-1" "drums-1" "drums-2")
+(concat-wav! "drums-2" "drums-2" "drums-3")
+(concat-wav! "drums-3" "drums-3" "drums-4")
+(concat-wav! "drums-4" "drums-4" "drums-8")
+(play! "drums-8")
 
 ;;;;;;;;;; Triangle bass/drums: Bass notes that rapidly descend
 ;;;;;;;;;; creating a percussive effect to mimic toms/kicks
