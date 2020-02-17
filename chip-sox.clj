@@ -83,17 +83,19 @@
      (append-note! wave pitch val tempo))
    (shell/sh "mv" "samples/temp0.wav" (str file ".wav"))))
 
-;;;;;;; Drums
+;;;;;;; Drums: Simple white noise
 
 ;; snare
 (create-note! "noise" 60 16 95 0.2)
 (play! "samples/noise-60-16-95")
+
 ;; closed hi-hat
 (create-note! "noise" 60 32 95 0.1)
 (high-pass! "samples/noise-60-32-95" "closed-hat")
 (play! "closed-hat")
 
-;;;;;;;;;; Triangle bass/drums
+;;;;;;;;;; Triangle bass/drums: Bass notes that rapidly descend
+;;;;;;;;;; creating a percussive effect to mimic toms/kicks
 
 (def tri-1
   {:deg-1 [[50 64] [46 64] [42 64] [40 64] [36 8] [0 32]]
@@ -124,7 +126,7 @@
 (concat-wav! "intro" "verse-2" "intro-verse-1")
 (play! "intro-verse-1")
 
-;;;;;;;;;;;;Sawtooth bass
+;;;;;;;;;;;; Sawtooth bass
 
 (def saw-1
   {:deg-1 [[31 16] [31 16] [43 16] [43 16]]
