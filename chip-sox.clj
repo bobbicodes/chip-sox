@@ -165,3 +165,8 @@
 (concat-wav! "saw-C" "saw-5b" "saw-E")
 (concat-wav! "saw-D" "saw-E" "saw-F")
 (play! "saw-F")
+
+;;;; Mix bass and drums
+
+(mix! "drums-8" "saw-F" "drums-bass")
+(play! "drums-bass")
