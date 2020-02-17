@@ -56,7 +56,7 @@
 
 (defn high-pass! [in out]
   (shell/sh "sox" (str in ".wav") (str out ".wav")
-            "gain" "-10" "bass" "-20" "5k" "treble" "20" "5k"))
+            "bass" "-10" "1k" "treble" "10" "5k"))
 
   (defn mix! [t1 t2 out]
     (shell/sh "sox" "-m"
@@ -166,7 +166,44 @@
 (concat-wav! "saw-D" "saw-E" "saw-F")
 (play! "saw-F")
 
+;;;;;; Lead synth: Square wave
+
+(create-note! "square" 67 4 95)
+(high-pass! "samples/square-67-4-95" "lead")
+(play! "lead")
+
+(def lead
+  {:bar-1 [[67 16] [74 32] [74 32] [73 16] [74 16] [79 16] [74 16] [73 16] [74 16]]
+   :bar-2 [[67 16] [74 32] [74 32] [73 16] [74 16] [79 16] [78 16] [79 16] [81 16]]
+   :bar-3 [[82 16] [84 32] [82 32] [81 16] [79 16] [87 16] [89 32] [87 32] [86 16] [84 16]]
+   :bar-4 [[86 2]]
+   :bar-5 [[82 16] [84 32] [82 32] [81 16] [86 16] [79 4]]})
+
+(build-track! "lead-1" "square" 95 (:bar-1 lead))
+(build-track! "lead-2" "square" 95 (:bar-2 lead))
+(build-track! "lead-3" "square" 95 (:bar-3 lead))
+(build-track! "lead-4" "square" 95 (:bar-4 lead))
+(build-track! "lead-5" "square" 95 (:bar-5 lead))
+(high-pass! "lead-1" "lead-A")
+(high-pass! "lead-2" "lead-B")
+(high-pass! "lead-3" "lead-C")
+(high-pass! "lead-4" "lead-D")
+(high-pass! "lead-5" "lead-E")
+(concat-wav! "lead-A" "lead-B" "lead-F")
+(concat-wav! "lead-C" "lead-D" "lead-G")
+(concat-wav! "lead-C" "lead-E" "lead-H")
+(concat-wav! "lead-F" "lead-G" "lead-I")
+(concat-wav! "lead-I" "samples/rest-32-95" "lead-1")
+(concat-wav! "lead-F" "lead-H" "lead-2")
+(concat-wav! "lead-1" "lead-2" "lead")
+(play! "lead-1")
+
 ;;;; Mix bass and drums
 
 (mix! "drums-8" "saw-F" "drums-bass")
 (play! "drums-bass")
+
+;;;;; Mix in lead
+
+(mix! "drums-bass" "lead" "monty-1")
+(play! "monty-1")
