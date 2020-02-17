@@ -38,20 +38,20 @@
              "fade" "t" "0.0015" (str decay) (str (- (duration val tempo) 0.0015))
              "trim" "0.0" (str (duration val tempo)))))
 
-  (defn append-note!
-    "Extends current track by concatenating a note to the end."
-    [wave pitch val tempo]
-    (shell/sh "sox" "samples/temp0.wav" 
-              (str "samples/" wave "-" pitch "-" val "-" tempo ".wav")
-              "samples/temp1.wav")
-    (shell/sh "mv" "samples/temp1.wav" "samples/temp0.wav"))
+(defn append-note!
+  "Extends current track by concatenating a note to the end."
+  [wave pitch val tempo]
+  (shell/sh "sox" "samples/temp0.wav" 
+            (str "samples/" wave "-" pitch "-" val "-" tempo ".wav")
+            "samples/temp1.wav")
+  (shell/sh "mv" "samples/temp1.wav" "samples/temp0.wav"))
 
   (defn concat-wav! [f1 f2 out]
     (shell/sh "sox" (str f1 ".wav") (str f2 ".wav") (str out ".wav"))) 
 
-  (defn high-pass! [in out level]
-    (shell/sh "sox" (str in ".wav") (str out ".wav") "flanger"
-              "gain" "-20" "bass" "-30" "5k" "treble" "20" "12k"))
+(defn high-pass! [in out]
+  (shell/sh "sox" (str in ".wav") (str out ".wav")
+            "gain" "-10" "bass" "-20" "5k" "treble" "20" "5k"))
 
   (defn mix! [t1 t2 out]
     (shell/sh "sox" "-m"
@@ -65,15 +65,15 @@
     (some #{(str  "samples/" wave "-" pitch "-" val "-" tempo ".wav")}
           (str/split-lines (:out (shell/sh "ls")))))
 
-  (defn build-track!
-    ([file wave tempo notes]
-     (init-wav!)
-     (println (str "Building track - \"" file "\" - Please wait..."))
-     (doseq [[pitch val] notes]
-       (when-not (sample-exists? wave pitch val tempo)
-         (create-note! wave pitch val tempo)
+(defn build-track!
+  ([file wave tempo notes]
+   (init-wav!)
+   (println (str "Building track - \"" file "\" - Please wait..."))
+   (doseq [[pitch val] notes]
+     (when-not (sample-exists? wave pitch val tempo)
+       (create-note! wave pitch val tempo)
        (append-note! wave pitch val tempo)))
-    (shell/sh "mv" "samples/temp0.wav" (str file ".wav")))
+   (shell/sh "mv" "samples/temp0.wav" (str file ".wav")))
   ([file wave tempo decay notes]
    (init-wav!)
    (println (str "Building track - \"" file "\" - Please wait..."))
@@ -82,6 +82,16 @@
        (create-note! wave pitch val tempo decay))
      (append-note! wave pitch val tempo))
    (shell/sh "mv" "samples/temp0.wav" (str file ".wav"))))
+
+;;;;;;; Drums
+
+;; snare
+(create-note! "noise" 60 16 95 0.2)
+(play! "samples/noise-60-16-95")
+;; closed hi-hat
+(create-note! "noise" 60 32 95 0.1)
+(high-pass! "samples/noise-60-32-95" "closed-hat")
+(play! "closed-hat")
 
 ;;;;;;;;;; Triangle bass/drums
 
